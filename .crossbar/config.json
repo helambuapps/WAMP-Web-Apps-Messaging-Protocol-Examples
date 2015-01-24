@@ -1,0 +1,96 @@
+{
+   "controller": {
+   },
+   "workers": [
+      {
+         "type": "router",
+         "options": {
+            "pythonpath": [".."]
+         },
+         "realms": [
+            {
+               "name": "realm1",
+               "roles": [
+                  {
+                     "name": "authenticator",
+                     "permissions": [
+                        {
+                           "uri": "com.example.authenticate",
+                           "register": true
+                        },
+                        {
+                           "uri": "com.example.add2",
+                           "register": true
+                        }
+                     ]
+                  },
+                  {
+                     "name": "frontend",
+                     "permissions": [
+                        {
+                           "uri": "com.example.add2",
+                           "call": true
+                        }
+                     ]
+                  },
+                  {
+                     "name": "backend",
+                     "permissions": [
+                        {
+                           "uri": "com.example.add2",
+                           "register": true
+                        }
+                     ]
+                  }
+               ]
+            }
+         ],
+         "transports": [
+            {
+               "type": "websocket",
+               "endpoint": {
+                  "type": "tcp",
+                  "port": 9000,
+                  "interface": "127.0.0.1"
+               },
+               "auth": {
+                  "wampcra": {
+                     "type": "static",
+                     "users": {
+                        "eddie": {
+                           "secret": "prq7+YkJ1/KlW1X0YczMHw==",
+                           "role": "authenticator",
+                           "salt": "salt123",
+                           "iterations": 100,
+                           "keylen": 16
+                        }
+                     }
+                  }
+               }
+            },
+            {
+               "type": "web",
+               "endpoint": {
+                  "type": "tcp",
+                  "port": 8080
+               },
+               "paths": {
+                  "/": {
+                     "type": "static",
+                     "directory": "../web"
+                  },
+                  "ws": {
+                     "type": "websocket",
+                     "auth": {
+                        "wampcra": {
+                           "type": "dynamic",
+                           "authenticator": "com.example.authenticate"
+                        }
+                     }
+                  }
+               }
+            }
+         ]
+      }
+   ]
+}
